@@ -5,6 +5,16 @@ import { Shell } from "../components/Shell"
 import { computeRate, formatEUR, formatNumber, rateFieldErrors, rateIssues, todayISO, type RateInput } from "../domain/model"
 import { useStore } from "../store"
 
+function formatDayCount(value: number): string {
+  return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 }).format(value)
+}
+
+function timeSummary(days: number): string {
+  if (!Number.isFinite(days) || days <= 0) return "Arbeitszeit"
+  const label = formatDayCount(days)
+  return `Arbeitszeit, ${label} ${days === 1 ? "Tag" : "Tage"}`
+}
+
 const moneyFields: { key: keyof RateInput; label: string; hint?: string; step?: string }[] = [
   { key: "desiredNetMonthly", label: "Wunsch-Netto im Monat", hint: "Was nach Steuer und Kosten übrig bleiben soll." },
   { key: "taxReservePercent", label: "Rücklage für Steuer, Prozent", hint: "Anteil vom Gewinn, nicht vom Umsatz." },
@@ -26,6 +36,7 @@ export function Landing() {
   const issues = rateIssues(rate)
   const fieldErrors = rateFieldErrors(rate)
   const result = computeRate(rate)
+  const workDays = result ? result.workDays : 52 * rate.workDaysPerWeek - rate.vacationDays - rate.sickDays
 
   useEffect(() => {
     document.title = "Satzklar"
@@ -122,41 +133,55 @@ export function Landing() {
                 <>
                   <p className="figure-kicker">Stundensatz, aufgerundet</p>
                   <p className="figure">{formatEUR(result.hourlyAsk)}</p>
-                  <dl className="figure-row">
-                    <div>
-                      <dt>Tagessatz</dt>
-                      <dd>{formatEUR(result.dayAsk)}</dd>
-                    </div>
-                    <div>
-                      <dt>Monatsumsatz</dt>
-                      <dd>{formatEUR(result.monthlyRevenue)}</dd>
-                    </div>
-                  </dl>
+                  <p className="day-line">
+                    Tagessatz <span>{formatEUR(result.dayAsk)}</span>
+                  </p>
                 </>
               ) : null}
             </div>
             {result ? (
-              <>
-                <button type="button" className="button button-accent" onClick={useRate}>
-                  Rechnung mit diesem Satz
-                </button>
-                <p className="hint">
-                  Genau {formatEUR(result.hourly)} je Stunde, vor dem Aufrunden. {result.workDays} Arbeitstage,{" "}
-                  {formatNumber(result.billableHours)} fakturierbare Stunden. Der Tagessatz ist der aufgerundete
-                  Stundensatz mal {rate.hoursPerDay} Stunden.
-                </p>
-              </>
+              <button type="button" className="button button-accent" onClick={useRate}>
+                Rechnung mit diesem Satz
+              </button>
             ) : null}
-            <p className="hint">Der Satz ist netto. Umsatzsteuer kommt obendrauf, außer du bist Kleinunternehmer.</p>
+            <p className="hint">Der Satz ändert sich, sobald du ein Feld änderst.</p>
+            <p className="hint">Netto. Umsatzsteuer kommt obendrauf, außer du bist Kleinunternehmer.</p>
+            {result ? (
+              <details className="fold">
+                <summary>So kommt die Zahl zustande</summary>
+                <dl className="breakdown">
+                  <div>
+                    <dt>Stundensatz vor dem Aufrunden</dt>
+                    <dd>{formatEUR(result.hourly)}</dd>
+                  </div>
+                  <div>
+                    <dt>Arbeitstage</dt>
+                    <dd>{formatDayCount(result.workDays)}</dd>
+                  </div>
+                  <div>
+                    <dt>Fakturierbare Stunden</dt>
+                    <dd>{formatNumber(result.billableHours)}</dd>
+                  </div>
+                  <div>
+                    <dt>Monatsumsatz</dt>
+                    <dd>{formatEUR(result.monthlyRevenue)}</dd>
+                  </div>
+                </dl>
+                <p className="hint">
+                  Der Tagessatz ist der aufgerundete Stundensatz mal {formatDayCount(rate.hoursPerDay)}{" "}
+                  {rate.hoursPerDay === 1 ? "Stunde" : "Stunden"}.
+                </p>
+              </details>
+            ) : null}
           </div>
         </div>
         <form className="panel" aria-labelledby="rechner-title" autoComplete="off">
           <h2 id="rechner-title">Was die Stunde bringen muss</h2>
           <div className="form-grid">{moneyFields.map(renderField)}</div>
-          <fieldset>
-            <legend>Arbeitszeit</legend>
+          <details className="fold">
+            <summary>{timeSummary(workDays)}</summary>
             <div className="form-grid">{timeFields.map(renderField)}</div>
-          </fieldset>
+          </details>
         </form>
       </section>
 
