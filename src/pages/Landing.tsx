@@ -27,8 +27,11 @@ const timeFields: { key: keyof RateInput; label: string; hint?: string; step?: s
   { key: "sickDays", label: "Krankheitstage im Jahr" },
   { key: "workDaysPerWeek", label: "Arbeitstage pro Woche", step: "1" },
   { key: "hoursPerDay", label: "Stunden pro Tag", step: "0.5" },
-  { key: "utilizationPercent", label: "Davon fakturierbar, Prozent", hint: "Der Rest ist Akquise, Verwaltung, Leerlauf." },
 ]
+
+// The domain accepts 1 to 100. The slider uses that range, and the default stays 60.
+const utilizationMin = 1
+const utilizationMax = 100
 
 export function Landing() {
   const navigate = useNavigate()
@@ -37,6 +40,8 @@ export function Landing() {
   const fieldErrors = rateFieldErrors(rate)
   const result = computeRate(rate)
   const workDays = result ? result.workDays : 52 * rate.workDaysPerWeek - rate.vacationDays - rate.sickDays
+  const leadField = moneyFields[0]
+  const quietFields = moneyFields.slice(1)
 
   useEffect(() => {
     document.title = "Satzklar"
@@ -69,11 +74,11 @@ export function Landing() {
     navigate(`/studio/dokument/${id}`)
   }
 
-  function renderField(field: (typeof moneyFields)[number]) {
+  function renderField(field: (typeof moneyFields)[number], tone?: "lead" | "quiet") {
     const message = fieldErrors.find((error) => error.field === field.key)?.message
     const describedBy = [field.hint ? `${field.key}-hint` : "", message ? `${field.key}-error` : ""].filter(Boolean).join(" ")
     return (
-      <div className="field" key={field.key}>
+      <div className={tone ? `field field-${tone}` : "field"} key={field.key}>
         <label htmlFor={field.key}>{field.label}</label>
         <input
           id={field.key}
@@ -102,6 +107,41 @@ export function Landing() {
     )
   }
 
+  function renderUtilization() {
+    const message = fieldErrors.find((error) => error.field === "utilizationPercent")?.message
+    const describedBy = ["utilizationPercent-hint", message ? "utilizationPercent-error" : ""].filter(Boolean).join(" ")
+    const percentLabel = formatDayCount(rate.utilizationPercent)
+    return (
+      <div className="field field-slider">
+        <label htmlFor="utilizationPercent">Davon fakturierbar</label>
+        <div className="slider-row">
+          <input
+            id="utilizationPercent"
+            name="utilizationPercent"
+            type="range"
+            min={utilizationMin}
+            max={utilizationMax}
+            step={1}
+            value={rate.utilizationPercent}
+            aria-invalid={message ? true : undefined}
+            aria-describedby={describedBy}
+            aria-valuetext={`${percentLabel} Prozent`}
+            onChange={(event) => update("utilizationPercent", event.target.value)}
+          />
+          <output htmlFor="utilizationPercent">{percentLabel} %</output>
+        </div>
+        <p id="utilizationPercent-hint" className="hint">
+          Der Rest ist Akquise, Verwaltung, Leerlauf.
+        </p>
+        {message ? (
+          <p id="utilizationPercent-error" className="error-text">
+            {message}
+          </p>
+        ) : null}
+      </div>
+    )
+  }
+
   const previewClient = {
     id: "preview",
     name: "Musterkunde GmbH",
@@ -112,17 +152,17 @@ export function Landing() {
     email: "",
   }
 
+  const dayLabel = result && result.workDays === 1 ? "Arbeitstag" : "Arbeitstage"
+
   return (
     <Shell>
       <section className="hero" id="rechner">
         <div className="hero-copy">
-          <h1>Dein Satz. Deine Rechnung.</h1>
-          <p className="lede">Rechne den Stundensatz aus, den du brauchst. Daraus werden Angebot und Rechnung.</p>
           <div className="hero-result">
-            <div aria-live="polite">
+            <div aria-live="polite" aria-atomic="true">
               {issues.length > 0 ? (
                 <div className="error-summary">
-                  <h2>Die Angaben gehen noch nicht auf</h2>
+                  <h1>Die Angaben gehen noch nicht auf</h1>
                   <ul className="error-list">
                     {issues.map((issue) => (
                       <li key={issue}>{issue}</li>
@@ -132,9 +172,10 @@ export function Landing() {
               ) : result ? (
                 <>
                   <p className="figure-kicker">Stundensatz, aufgerundet</p>
-                  <p className="figure">{formatEUR(result.hourlyAsk)}</p>
-                  <p className="day-line">
-                    Tagessatz <span>{formatEUR(result.dayAsk)}</span>
+                  <h1 className="figure">{formatEUR(result.hourlyAsk)}</h1>
+                  <p className="companion">
+                    Tagessatz {formatEUR(result.dayAsk)}, im Monat {formatEUR(result.monthlyRevenue)},{" "}
+                    {`${formatDayCount(result.workDays)}\u00a0${dayLabel}`}
                   </p>
                 </>
               ) : null}
@@ -144,8 +185,7 @@ export function Landing() {
                 Rechnung mit diesem Satz
               </button>
             ) : null}
-            <p className="hint">Der Satz ändert sich, sobald du ein Feld änderst.</p>
-            <p className="hint">Netto. Umsatzsteuer kommt obendrauf, außer du bist Kleinunternehmer.</p>
+            <p className="rate-note">Der Satz ist netto, und Umsatzsteuer kommt obendrauf, außer du bist Kleinunternehmer.</p>
             {result ? (
               <details className="fold">
                 <summary>So kommt die Zahl zustande</summary>
@@ -155,16 +195,8 @@ export function Landing() {
                     <dd>{formatEUR(result.hourly)}</dd>
                   </div>
                   <div>
-                    <dt>Arbeitstage</dt>
-                    <dd>{formatDayCount(result.workDays)}</dd>
-                  </div>
-                  <div>
                     <dt>Fakturierbare Stunden</dt>
                     <dd>{formatNumber(result.billableHours)}</dd>
-                  </div>
-                  <div>
-                    <dt>Monatsumsatz</dt>
-                    <dd>{formatEUR(result.monthlyRevenue)}</dd>
                   </div>
                 </dl>
                 <p className="hint">
@@ -177,10 +209,12 @@ export function Landing() {
         </div>
         <form className="panel" aria-labelledby="rechner-title" autoComplete="off">
           <h2 id="rechner-title">Was die Stunde bringen muss</h2>
-          <div className="form-grid">{moneyFields.map(renderField)}</div>
+          {renderField(leadField, "lead")}
+          <div className="quiet-fields">{quietFields.map((field) => renderField(field, "quiet"))}</div>
+          {renderUtilization()}
           <details className="fold">
             <summary>{timeSummary(workDays)}</summary>
-            <div className="form-grid">{timeFields.map(renderField)}</div>
+            <div className="form-grid">{timeFields.map((field) => renderField(field))}</div>
           </details>
         </form>
       </section>
