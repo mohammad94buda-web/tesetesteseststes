@@ -267,36 +267,43 @@ a:hover {
 }
 
 .hero-result .button {
-  margin: var(--space-md) 0 var(--space-sm);
+  margin: var(--space-md) 0 0;
 }
 
 .figure-kicker {
-  margin: 0;
+  margin: 0 0 var(--space-xs);
   color: var(--color-muted-foreground);
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
-.figure {
+/* Large text. #059669 on #F8FAFC is 3.6:1, #34D399 on #0B1220 is 9.7:1. */
+h1.figure {
   margin: 0;
   max-width: none;
-  font-size: clamp(2.5rem, 4vw, 3.75rem);
-  font-weight: 700;
+  color: var(--color-accent);
+  font-size: clamp(3.25rem, 5.5vw, 4.75rem);
+  font-weight: 500;
   line-height: 1.05;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 
-.day-line {
-  margin: var(--space-xs) 0 0;
+.companion {
+  margin: var(--space-sm) 0 0;
   max-width: none;
   color: var(--color-muted-foreground);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
 }
 
-.day-line span {
-  color: var(--color-foreground);
-  font-weight: 600;
+.rate-note {
+  max-width: 38ch;
+  margin: var(--space-md) 0 0;
+  color: var(--color-muted-foreground);
 }
 
 .fold {
@@ -408,9 +415,109 @@ a:hover {
   margin-bottom: var(--space-sm);
 }
 
-.form-grid {
+.form-grid,
+.quiet-fields {
   display: grid;
   gap: var(--space-md);
+}
+
+.quiet-fields {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.field-lead input {
+  min-height: 52px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.field.field-quiet label {
+  color: var(--color-muted-foreground);
+  font-weight: 500;
+}
+
+.field-slider {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.slider-row output {
+  flex: none;
+  min-width: 4.75rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-foreground);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  text-align: right;
+}
+
+.field-slider input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.field-slider input[type="range"]::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--color-border);
+  border-radius: 1px;
+}
+
+.field-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -10px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-foreground);
+  box-shadow: none;
+}
+
+.field-slider input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: var(--color-border);
+  border: 0;
+  border-radius: 1px;
+}
+
+.field-slider input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-foreground);
+  box-shadow: none;
+}
+
+.field-slider input[type="range"][aria-invalid="true"] {
+  outline: 2px solid var(--color-destructive);
+  outline-offset: 2px;
 }
 
 .field {
@@ -454,6 +561,13 @@ legend {
 
 .error-summary h2 {
   font-size: 1.125rem;
+}
+
+.hero-result .error-summary h1 {
+  margin-bottom: var(--space-sm);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 input,
@@ -986,7 +1100,10 @@ form > fieldset:first-child {
 }
 
 @media (min-width: 1024px) {
-  .hero,
+  .hero {
+    grid-template-columns: minmax(0, 1.12fr) minmax(280px, 0.88fr);
+  }
+
   .editor-grid {
     grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
   }
@@ -994,6 +1111,8 @@ form > fieldset:first-child {
   .hero-copy {
     position: sticky;
     top: calc(var(--header-h) + var(--space-lg));
+    z-index: 1;
+    background: var(--color-background);
   }
 
   .page-main {
@@ -1015,6 +1134,11 @@ form > fieldset:first-child {
 @media (min-width: 1100px) {
   .form-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .hero .form-grid,
+  .hero .quiet-fields {
+    grid-template-columns: 1fr;
   }
 }
 
