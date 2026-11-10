@@ -4,8 +4,9 @@
 > **Generated:** 2026-11-10 00:12:18
 > **Page Type:** Dashboard / Data View
 
-> ⚠️ **IMPORTANT:** Rules in this file **override** the Master file (`design-system/MASTER.md`).
-> Only deviations from the Master are documented here. For all other rules, refer to the Master.
+> Rejected where it fights the product. `DESIGN.md` wins.
+> Keep the higher density only. Do not apply Fira, orange, chart chrome, or a card around every figure.
+> Studio uses Plus Jakarta Sans, plain figures, and hairline tables.
 
 ---
 
@@ -18,19 +19,19 @@
 
 ### Spacing Overrides
 
-- **Content Density:** High — optimize for information display
+- **Content Density:** High : optimize for information display
 
 ### Typography Overrides
 
-- No overrides — use Master typography
+- No overrides : use Master typography
 
 ### Color Overrides
 
-- No overrides — use Master colors
+- No overrides : use Master colors
 
 ### Component Overrides
 
-- No overrides — use Master component specs
+- No overrides : use Master component specs
 
 ---
 

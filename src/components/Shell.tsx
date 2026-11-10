@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { Moon, Sun } from "@phosphor-icons/react"
 import { NavLink } from "react-router-dom"
 import { useStore } from "../store"
 
@@ -12,33 +13,37 @@ export function Shell({ children, studio = false }: { children: ReactNode; studi
       </a>
       <header className="site-header no-print">
         <div className="header-row">
-          <NavLink to="/" className="wordmark">
+          <NavLink to="/" className="wordmark" end>
             Satzklar
           </NavLink>
-          <nav className="header-nav" aria-label="Hauptnavigation">
-            <NavLink to={{ pathname: "/", hash: "rechner" }}>Rechner</NavLink>
-            <NavLink to="/studio">Studio</NavLink>
-            <NavLink to="/preise">Preis</NavLink>
-          </nav>
           <button
             type="button"
-            className="button button-quiet"
+            className="button button-quiet theme-toggle"
             aria-pressed={theme === "dark"}
             aria-label={theme === "dark" ? "Darstellung ist dunkel, auf hell wechseln" : "Darstellung ist hell, auf dunkel wechseln"}
             onClick={() => setTheme(next)}
           >
+            {theme === "dark" ? <Moon size={20} weight="regular" aria-hidden="true" /> : <Sun size={20} weight="regular" aria-hidden="true" />}
             {theme === "dark" ? "Dunkel" : "Hell"}
           </button>
-        </div>
-        {studio ? (
-          <nav className="studio-nav" aria-label="Studio">
-            <NavLink to="/studio" end>
-              Übersicht
+          <nav className="header-nav" aria-label="Hauptnavigation">
+            <NavLink to={{ pathname: "/", hash: "rechner" }} end>
+              Rechner
             </NavLink>
-            <NavLink to="/studio/kunden">Kunden</NavLink>
-            <NavLink to="/studio/einstellungen">Einstellungen</NavLink>
+            {studio ? (
+              <>
+                <NavLink to="/studio" end>
+                  Übersicht
+                </NavLink>
+                <NavLink to="/studio/kunden">Kunden</NavLink>
+                <NavLink to="/studio/einstellungen">Einstellungen</NavLink>
+              </>
+            ) : (
+              <NavLink to="/studio">Studio</NavLink>
+            )}
+            <NavLink to="/preise">Preis</NavLink>
           </nav>
-        ) : null}
+        </div>
       </header>
       <main id="inhalt" className={studio ? "studio-main" : "page-main"}>
         {children}

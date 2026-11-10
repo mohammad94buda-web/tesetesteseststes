@@ -4,8 +4,9 @@
 > **Generated:** 2026-11-10 00:12:18
 > **Page Type:** Landing / Marketing
 
-> ⚠️ **IMPORTANT:** Rules in this file **override** the Master file (`design-system/MASTER.md`).
-> Only deviations from the Master are documented here. For all other rules, refer to the Master.
+> Rejected for the product. `DESIGN.md` wins on every conflict.
+> Do not apply three pricing cards, typing effects, gradient text, glass, orange, or GSAP that hides content on load.
+> The landing stays a live calculator plus the real invoice, in the master palette.
 
 ---
 
@@ -19,11 +20,11 @@
 
 ### Spacing Overrides
 
-- No overrides — use Master spacing
+- No overrides : use Master spacing
 
 ### Typography Overrides
 
-- No overrides — use Master typography
+- No overrides : use Master typography
 
 ### Color Overrides
 
@@ -31,7 +32,7 @@
 
 ### Component Overrides
 
-- No overrides — use Master component specs
+- No overrides : use Master component specs
 
 ---
 

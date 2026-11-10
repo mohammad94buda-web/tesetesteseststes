@@ -56,34 +56,37 @@ export function Dashboard() {
       ) : null}
 
       {hasInvoices ? (
-        <table className="summary-table">
-          <caption>
+        <>
+          <dl className="ledger">
+            <div>
+              <dt>Offen</dt>
+              <dd>{formatEUR(summary.open)}</dd>
+            </div>
+            <div>
+              <dt>Überfällig</dt>
+              <dd className={summary.overdue > 0 ? "is-warning" : undefined}>{formatEUR(summary.overdue)}</dd>
+            </div>
+            <div>
+              <dt>Bezahlt im Monat</dt>
+              <dd>{formatEUR(summary.paidMonth)}</dd>
+            </div>
+            <div>
+              <dt>Angebote draußen</dt>
+              <dd>{formatEUR(summary.quotes)}</dd>
+            </div>
+          </dl>
+          <p className="hint">
             Überfällig ist ein Teil der offenen Beträge. Bezahlt meint{" "}
             {new Intl.DateTimeFormat("de-DE", { month: "long", year: "numeric" }).format(new Date(`${today}T12:00:00`))}.
-          </caption>
-          <tbody>
-            <tr>
-              <th scope="row">Offen</th>
-              <td>{formatEUR(summary.open)}</td>
-            </tr>
-            <tr>
-              <th scope="row">Überfällig</th>
-              <td>{formatEUR(summary.overdue)}</td>
-            </tr>
-            <tr>
-              <th scope="row">Bezahlt im Monat</th>
-              <td>{formatEUR(summary.paidMonth)}</td>
-            </tr>
-            <tr>
-              <th scope="row">Angebote draußen</th>
-              <td>{formatEUR(summary.quotes)}</td>
-            </tr>
-          </tbody>
-        </table>
+          </p>
+        </>
       ) : (
         <p>
-          Noch keine Rechnung.
-          {profile.defaultRate > 0 ? ` Neue Rechnungen starten bei ${formatEUR(profile.defaultRate)} je Stunde.` : ""}
+          {docs.length > 0
+            ? "Noch keine Rechnung. Angebote stehen in der Liste darunter."
+            : `Noch kein Dokument. Mit „Rechnung schreiben“ oder „Angebot schreiben“ legst du das erste an.${
+                profile.defaultRate > 0 ? ` Neue Rechnungen starten bei ${formatEUR(profile.defaultRate)} je Stunde.` : ""
+              }`}
         </p>
       )}
 
@@ -120,9 +123,9 @@ export function Dashboard() {
                   </td>
                   <td>
                     <span className="cell-label">Status</span>
-                    {statusLabel(doc, today)}
+                    <span className={isOverdue(doc, today) ? "is-warning" : undefined}>{statusLabel(doc, today)}</span>
                   </td>
-                  <td>
+                  <td className="num">
                     <span className="cell-label">Brutto</span>
                     {formatEUR(totals(doc).gross)}
                   </td>

@@ -24,86 +24,113 @@ export function Settings() {
       <h1>Einstellungen</h1>
       <p>Keine Rechtsberatung. Prüfe die Angaben, bevor du eine Rechnung verschickst.</p>
       {profile.legalName === "Beispielstudio" ? (
-        <p>Der Absender heißt noch Beispielstudio. Trag deinen Namen ein, bevor du eine Rechnung verschickst.</p>
+        <p className="banner" role="status">
+          Der Absender heißt noch Beispielstudio. Trag deinen Namen ein, bevor du eine Rechnung verschickst.
+        </p>
       ) : null}
-      <form className="panel" onSubmit={(event) => event.preventDefault()}>
-        <div className="form-grid">
-          <div className="field">
-            <label htmlFor="legalName">Name oder Firma</label>
-            <input id="legalName" value={profile.legalName} onChange={text("legalName")} autoComplete="organization" />
+      <form className="panel" autoComplete="on" onSubmit={(event) => event.preventDefault()}>
+        <fieldset>
+          <legend>Absender</legend>
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor="legalName">Name oder Firma</label>
+              <input id="legalName" name="organization" value={profile.legalName} onChange={text("legalName")} autoComplete="organization" />
+            </div>
+            <div className="field">
+              <label htmlFor="email">E-Mail</label>
+              <input id="email" name="email" type="email" spellCheck={false} value={profile.email} onChange={text("email")} autoComplete="email" />
+            </div>
+            <div className="field">
+              <label htmlFor="address">Straße</label>
+              <input id="address" name="street-address" value={profile.street} onChange={text("street")} autoComplete="street-address" />
+            </div>
+            <div className="field">
+              <label htmlFor="zip">PLZ</label>
+              <input id="zip" name="postal-code" inputMode="numeric" value={profile.zip} onChange={text("zip")} autoComplete="postal-code" />
+            </div>
+            <div className="field span-2">
+              <label htmlFor="city">Ort</label>
+              <input id="city" name="address-level2" value={profile.city} onChange={text("city")} autoComplete="address-level2" />
+            </div>
           </div>
-          <div className="field">
-            <label htmlFor="email">E-Mail</label>
-            <input id="email" type="email" value={profile.email} onChange={text("email")} autoComplete="email" />
+        </fieldset>
+        <fieldset>
+          <legend>Steuer</legend>
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor="tax">Steuernummer</label>
+              <input id="tax" name="tax" value={profile.taxNumber} onChange={text("taxNumber")} autoComplete="off" spellCheck={false} />
+            </div>
+            <div className="field">
+              <label htmlFor="vatId">USt-IdNr.</label>
+              <input id="vatId" name="vat-id" value={profile.vatId} onChange={text("vatId")} autoComplete="off" spellCheck={false} />
+            </div>
           </div>
-          <div className="field">
-            <label htmlFor="address">Straße</label>
-            <input id="address" value={profile.street} onChange={text("street")} autoComplete="street-address" />
-          </div>
-          <div className="field">
-            <label htmlFor="zip">PLZ</label>
-            <input id="zip" value={profile.zip} onChange={text("zip")} autoComplete="postal-code" />
-          </div>
-          <div className="field">
-            <label htmlFor="city">Ort</label>
-            <input id="city" value={profile.city} onChange={text("city")} autoComplete="address-level2" />
-          </div>
-          <div className="field">
-            <label htmlFor="tax">Steuernummer</label>
-            <input id="tax" value={profile.taxNumber} onChange={text("taxNumber")} />
-          </div>
-          <div className="field">
-            <label htmlFor="vatId">USt-IdNr.</label>
-            <input id="vatId" value={profile.vatId} onChange={text("vatId")} />
-          </div>
-          <div className="field">
-            <label htmlFor="iban">IBAN</label>
-            <input id="iban" value={profile.iban} onChange={text("iban")} spellCheck={false} />
-          </div>
-          <div className="field">
-            <label htmlFor="bic">BIC</label>
-            <input id="bic" value={profile.bic} onChange={text("bic")} spellCheck={false} />
-          </div>
-          <div className="field">
-            <label htmlFor="bankName">Bank</label>
-            <input id="bankName" value={profile.bankName} onChange={text("bankName")} />
-          </div>
-          <div className="field">
-            <label htmlFor="paymentTermsDays">Zahlungsziel, Tage</label>
+          <label className="check" htmlFor="smallBusiness">
             <input
-              id="paymentTermsDays"
-              type="number"
-              min={0}
-              step={1}
-              value={profile.paymentTermsDays}
-              onChange={(event) => updateProfile({ paymentTermsDays: Number(event.target.value) || 0 })}
+              id="smallBusiness"
+              name="small-business"
+              type="checkbox"
+              checked={profile.smallBusiness}
+              onChange={(event) => updateProfile({ smallBusiness: event.target.checked })}
             />
+            Kleinunternehmer nach § 19 UStG. Neue Dokumente setzen dann 0 % Umsatzsteuer.
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>Konto</legend>
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor="iban">IBAN</label>
+              <input id="iban" name="iban" value={profile.iban} onChange={text("iban")} autoComplete="off" spellCheck={false} />
+            </div>
+            <div className="field">
+              <label htmlFor="bic">BIC</label>
+              <input id="bic" name="bic" value={profile.bic} onChange={text("bic")} autoComplete="off" spellCheck={false} />
+            </div>
+            <div className="field">
+              <label htmlFor="bankName">Bank</label>
+              <input id="bankName" name="bank" value={profile.bankName} onChange={text("bankName")} autoComplete="off" />
+            </div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Rechnung</legend>
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor="paymentTermsDays">Zahlungsziel, Tage</label>
+              <input
+                id="paymentTermsDays"
+                name="payment-terms"
+                type="number"
+                inputMode="numeric"
+                autoComplete="off"
+                min={0}
+                step={1}
+                value={profile.paymentTermsDays}
+                onChange={(event) => updateProfile({ paymentTermsDays: Number(event.target.value) || 0 })}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="defaultRate">Standard-Stundensatz, netto</label>
+              <input
+                id="defaultRate"
+                name="default-rate"
+                type="number"
+                inputMode="decimal"
+                autoComplete="off"
+                min={0}
+                step="1"
+                value={profile.defaultRate}
+                onChange={(event) => updateProfile({ defaultRate: Number(event.target.value) || 0 })}
+              />
+            </div>
           </div>
           <div className="field">
-            <label htmlFor="defaultRate">Standard-Stundensatz, netto</label>
-            <input
-              id="defaultRate"
-              type="number"
-              min={0}
-              step="1"
-              value={profile.defaultRate}
-              onChange={(event) => updateProfile({ defaultRate: Number(event.target.value) || 0 })}
-            />
+            <label htmlFor="footerNote">Fußzeile</label>
+            <textarea id="footerNote" name="footer-note" autoComplete="off" value={profile.footerNote} onChange={text("footerNote")} />
           </div>
-        </div>
-        <label className="check" htmlFor="smallBusiness">
-          <input
-            id="smallBusiness"
-            type="checkbox"
-            checked={profile.smallBusiness}
-            onChange={(event) => updateProfile({ smallBusiness: event.target.checked })}
-          />
-          Kleinunternehmer nach § 19 UStG. Neue Dokumente setzen dann 0 % Umsatzsteuer.
-        </label>
-        <div className="field">
-          <label htmlFor="footerNote">Fußzeile</label>
-          <textarea id="footerNote" value={profile.footerNote} onChange={text("footerNote")} />
-        </div>
+        </fieldset>
       </form>
       {hasSample ? (
         <p>
