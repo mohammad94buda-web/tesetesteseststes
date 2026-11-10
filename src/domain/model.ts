@@ -160,32 +160,45 @@ export function blankProfile(): Profile {
   }
 }
 
-export function rateIssues(input: RateInput): string[] {
-  const issues: string[] = []
-  if (input.desiredNetMonthly < 0) issues.push("Das Wunsch-Netto kann nicht negativ sein.")
-  if (input.taxReservePercent < 0 || input.taxReservePercent >= 100) {
-    issues.push("Die Steuerrücklage muss zwischen 0 und 99 Prozent liegen.")
+export function rateFieldErrors(input: RateInput): { field: keyof RateInput; message: string }[] {
+  const errors: { field: keyof RateInput; message: string }[] = []
+  if (input.desiredNetMonthly < 0) {
+    errors.push({ field: "desiredNetMonthly", message: "Das Wunsch-Netto kann nicht negativ sein." })
   }
-  if (input.healthMonthly < 0 || input.fixedMonthly < 0) {
-    issues.push("Kosten können nicht negativ sein.")
+  if (input.taxReservePercent < 0 || input.taxReservePercent >= 100) {
+    errors.push({ field: "taxReservePercent", message: "Die Steuerrücklage muss zwischen 0 und 99 Prozent liegen." })
+  }
+  if (input.healthMonthly < 0) {
+    errors.push({ field: "healthMonthly", message: "Kosten können nicht negativ sein." })
+  }
+  if (input.fixedMonthly < 0) {
+    errors.push({ field: "fixedMonthly", message: "Kosten können nicht negativ sein." })
   }
   if (input.workDaysPerWeek <= 0 || input.workDaysPerWeek > 7) {
-    issues.push("Arbeitstage pro Woche müssen zwischen 1 und 7 liegen.")
+    errors.push({ field: "workDaysPerWeek", message: "Arbeitstage pro Woche müssen zwischen 1 und 7 liegen." })
   }
   if (input.hoursPerDay <= 0 || input.hoursPerDay > 24) {
-    issues.push("Stunden pro Tag müssen zwischen 1 und 24 liegen.")
+    errors.push({ field: "hoursPerDay", message: "Stunden pro Tag müssen zwischen 1 und 24 liegen." })
   }
   if (input.utilizationPercent <= 0 || input.utilizationPercent > 100) {
-    issues.push("Der fakturierbare Anteil muss zwischen 1 und 100 Prozent liegen.")
+    errors.push({ field: "utilizationPercent", message: "Der fakturierbare Anteil muss zwischen 1 und 100 Prozent liegen." })
   }
-  if (input.vacationDays < 0 || input.sickDays < 0) {
-    issues.push("Urlaubs- und Krankheitstage können nicht negativ sein.")
+  if (input.vacationDays < 0) {
+    errors.push({ field: "vacationDays", message: "Urlaubs- und Krankheitstage können nicht negativ sein." })
+  }
+  if (input.sickDays < 0) {
+    errors.push({ field: "sickDays", message: "Urlaubs- und Krankheitstage können nicht negativ sein." })
   }
   const workDays = 52 * input.workDaysPerWeek - input.vacationDays - input.sickDays
-  if (issues.length === 0 && workDays <= 0) {
-    issues.push("Urlaub und Krankheit sind höher als die Arbeitstage im Jahr.")
+  if (errors.length === 0 && workDays <= 0) {
+    const message = "Urlaub und Krankheit sind höher als die Arbeitstage im Jahr."
+    errors.push({ field: "vacationDays", message }, { field: "sickDays", message })
   }
-  return issues
+  return errors
+}
+
+export function rateIssues(input: RateInput): string[] {
+  return [...new Set(rateFieldErrors(input).map((error) => error.message))]
 }
 
 export function computeRate(input: RateInput): RateResult | null {

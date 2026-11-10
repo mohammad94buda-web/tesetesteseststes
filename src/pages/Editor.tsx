@@ -83,7 +83,7 @@ export function Editor() {
 
   return (
     <Shell studio>
-      <div className="page-head">
+      <div className="page-head no-print">
         <div>
           <h1>{doc.kind === "quote" ? "Angebot" : "Rechnung"}</h1>
           <p>
@@ -107,6 +107,7 @@ export function Editor() {
           }}
         >
           <ErrorSummary errors={errors} attempt={attempt} />
+          {locked ? <p className="hint">Festgeschrieben. Drucken und den Status ändern geht weiter.</p> : null}
           {notice ? (
             <p role="status" className="hint">
               {notice}
@@ -117,6 +118,8 @@ export function Editor() {
               <label htmlFor="clientId">Kunde</label>
               <select
                 id="clientId"
+                name="clientId"
+                autoComplete="off"
                 value={doc.clientId}
                 disabled={locked}
                 aria-invalid={Boolean(errorFor(errors, "clientId"))}
@@ -138,7 +141,9 @@ export function Editor() {
               <label htmlFor="issuedOn">Datum</label>
               <input
                 id="issuedOn"
+                name="issuedOn"
                 type="date"
+                autoComplete="off"
                 value={doc.issuedOn}
                 disabled={locked}
                 aria-invalid={Boolean(errorFor(errors, "issuedOn"))}
@@ -149,7 +154,9 @@ export function Editor() {
               <label htmlFor="serviceOn">Leistungsdatum</label>
               <input
                 id="serviceOn"
+                name="serviceOn"
                 type="date"
+                autoComplete="off"
                 value={doc.serviceOn}
                 disabled={locked}
                 aria-invalid={Boolean(errorFor(errors, "serviceOn"))}
@@ -160,7 +167,9 @@ export function Editor() {
               <label htmlFor="dueOn">{doc.kind === "quote" ? "Gültig bis" : "Fällig"}</label>
               <input
                 id="dueOn"
+                name="dueOn"
                 type="date"
+                autoComplete="off"
                 value={doc.dueOn}
                 disabled={locked}
                 aria-invalid={Boolean(errorFor(errors, "dueOn"))}
@@ -171,6 +180,8 @@ export function Editor() {
               <label htmlFor="vatRate">Umsatzsteuer, Prozent</label>
               <select
                 id="vatRate"
+                name="vatRate"
+                autoComplete="off"
                 value={doc.vatRate}
                 disabled={locked || store.profile.smallBusiness}
                 onChange={(event) => patch({ vatRate: Number(event.target.value) })}
@@ -191,6 +202,8 @@ export function Editor() {
                   <label htmlFor={`desc-${line.id}`}>Text</label>
                   <input
                     id={`desc-${line.id}`}
+                    name={`desc-${line.id}`}
+                    autoComplete="off"
                     value={line.description}
                     disabled={locked}
                     onChange={(event) => patchLine(line.id, { description: event.target.value })}
@@ -200,6 +213,9 @@ export function Editor() {
                   <label htmlFor={`qty-${line.id}`}>Menge</label>
                   <input
                     id={`qty-${line.id}`}
+                    name={`qty-${line.id}`}
+                    autoComplete="off"
+                    inputMode="decimal"
                     type="number"
                     min={0}
                     step="0.25"
@@ -215,6 +231,8 @@ export function Editor() {
                   <label htmlFor={`unit-${line.id}`}>Einheit</label>
                   <select
                     id={`unit-${line.id}`}
+                    name={`unit-${line.id}`}
+                    autoComplete="off"
                     value={line.unit}
                     disabled={locked}
                     onChange={(event) => patchLine(line.id, { unit: event.target.value })}
@@ -228,6 +246,9 @@ export function Editor() {
                   <label htmlFor={`price-${line.id}`}>Preis netto</label>
                   <input
                     id={`price-${line.id}`}
+                    name={`price-${line.id}`}
+                    autoComplete="off"
+                    inputMode="decimal"
                     type="number"
                     min={0}
                     step="1"
@@ -260,7 +281,7 @@ export function Editor() {
 
           <div className="field">
             <label htmlFor="note">Notiz</label>
-            <textarea id="note" value={doc.note} disabled={locked} onChange={(event) => patch({ note: event.target.value })} />
+            <textarea id="note" name="note" autoComplete="off" value={doc.note} disabled={locked} onChange={(event) => patch({ note: event.target.value })} />
           </div>
           <p className="sum-line">
             Brutto {formatEUR(sum.gross)}

@@ -89,6 +89,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
     document.documentElement.dataset.theme = state.theme
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", state.theme === "dark" ? "#0B1220" : "#F8FAFC")
   }, [state])
 
   const store = useMemo<Store>(() => {
